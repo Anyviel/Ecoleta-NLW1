@@ -1,46 +1,17 @@
-import express, { request, response } from 'express';
-import knex from './database/connection'
+import express from 'express';
+
+import ItemsController from './controllers/itemsController';
+import PointsController from './controllers/pointsController';
 
 const routes = express.Router();
+const pointsController = new PointsController();
+const indexController = new ItemsController();
 
-routes.get('/items', async (request, response) => { 
-  const items = await knex('items').select('*');
+routes.get('/items', indexController.index);
 
-  const serializedItem = items.map(item => {
-    return {
-      id: item.id,
-      title: item.title,
-      image_url: `http://localhost:3333/uploads/${item.image}`
-    }
-  })
+routes.post('/points', pointsController.create);
+routes.get('/points/:id', pointsController.show);
+routes.get('/points', pointsController.index);
 
-  return response.json(serializedItem)
-});
-
-routes.post('/points', async (request, response) => {
-  const {
-    name,
-    email,
-    whatsapp,
-    longitude,
-    latitude,
-    city,
-    uf,
-    items
-  } = request.body
-
-  await knex('points').insert({
-    image: 'image-fake',
-    name,
-    email,
-    whatsapp,
-    longitude,
-    latitude,
-    city,
-    uf
-  })
-
-  response.json({ sucess: true })
-})
 
 export default routes;
